@@ -1,8 +1,8 @@
-import Login from "./pages/Login";
-import Discover from "./pages/Discover";
-import NewSpace from "./pages/NewSpace";
-import Profile from "./pages/Profile";
-import Register from "./pages/Register";
+import Login from "./pages/login/Login";
+import Register from "./pages/register/Register";
+import Discover from "./pages/discover/Discover";
+import NewSpace from "./pages/newspace/NewSpace";
+import Profile from "./pages/profile/Profile";
 import "./App.css";
 import { Route, Routes, BrowserRouter, useLocation } from "react-router-dom";
 import Header from "./components/Header";
