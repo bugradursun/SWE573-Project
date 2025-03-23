@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Login from "./pages/Login/Login";
+import Signup from "./pages/Signup/Signup";
+import Feed from "./pages/Feed/Feed";
+import Header from "./Components/Header/Header";
+import "./App.css";
+import { Route, Routes, BrowserRouter, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-function App() {
+const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const location = useLocation(); // Get the current location
+
+  useEffect(() => {
+    const user = localStorage.getItem("user"); //if user is stored in local storage
+    setIsAuthenticated(user ? true : false);
+  }, []);
+
+  const showHeader =
+    isAuthenticated &&
+    ["/discover", "/new-space", "/profile"].includes(location.pathname);
+  // / route içinde isAuthenticated ? <Discover> : <Login> ekle sonra
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {showHeader && <Header />}
+      <Routes>
+        <Route path="/" element={<Feed />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </>
   );
-}
-
-export default App;
+};
+const AppWrapper: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+};
+export default AppWrapper;
