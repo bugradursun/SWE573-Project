@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity 
 @Table(name = "user")
-@EntityListeners((AuditingEntityListener.class)) //@CreatedDate, @LastmofiedDate gibi otomatik zaman damgaları eklemek için
-public class User implements UserDetails, Principal {
+@EntityListeners((AuditingEntityListener.class)) //@CreatedDate, @LastmofiedDate gibi otomatik zaman damgaları eklemek için. Ayrıca kim tarafından üretildi vs
+public class User implements UserDetails, Principal { // UserDetails : Spring security authentication,
     @Id
     @GeneratedValue
     private Integer id;

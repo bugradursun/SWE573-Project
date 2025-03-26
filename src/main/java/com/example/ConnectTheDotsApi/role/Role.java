@@ -26,7 +26,7 @@ public class Role {
     @Column(unique = true)
     private String  name;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(mappedBy = "roles") //role ve user arasında many to many iliski var
     @JsonIgnore
     private List<User> users;
 
