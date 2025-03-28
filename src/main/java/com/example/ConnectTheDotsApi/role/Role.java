@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@EntityListeners((AuditingEntityListener.class)) //@CreatedDate, @LastmofiedDate gibi otomatik zaman damgaları eklemek için
+//@EntityListeners({AuditingEntityListener.class}) //@CreatedDate, @LastmofiedDate gibi otomatik zaman damgaları eklemek için
 public class Role {
 
     @Id

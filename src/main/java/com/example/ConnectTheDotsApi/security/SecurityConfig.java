@@ -1,5 +1,6 @@
 package com.example.ConnectTheDotsApi.security;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,12 +22,13 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 * */
 @Configuration
 @EnableWebSecurity
+@NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    private JwtFilter jwtAuthFilter;
-    private AuthenticationProvider authenticationProvider;
+    private final JwtFilter jwtAuthFilter;
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,9 +47,10 @@ public class SecurityConfig {
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-        ).sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) //even if user was legit, we will do recheck. So we dont store their previous info
+        ).sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) //even if user was legit, we will do recheck. So we don't store their previous info
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); //before proceeding username and password, check all the flow(token exists, user exists=
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); //before proceeding username and password, check all the flow(token exists, user exists
+        return http.build();
     }
 
 }
