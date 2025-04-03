@@ -93,7 +93,7 @@ public class User implements UserDetails, Principal { // UserDetails : Spring se
         return enabled;
     }
 
-    private String fullName() {
+    public String fullName() {
         return firstname + " " + lastname;
     }
 }

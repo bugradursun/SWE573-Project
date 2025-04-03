@@ -1,12 +1,15 @@
 package com.example.ConnectTheDotsApi.auth;
 
 import com.example.ConnectTheDotsApi.email.EmailService;
+import com.example.ConnectTheDotsApi.email.EmailTemplateName;
 import com.example.ConnectTheDotsApi.role.RoleRepository;
 import com.example.ConnectTheDotsApi.user.Token;
 import com.example.ConnectTheDotsApi.user.TokenRepository;
 import com.example.ConnectTheDotsApi.user.User;
 import com.example.ConnectTheDotsApi.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +26,14 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
-    public void register(RegistrationRequest request) {
+    @Value("${application.mailing.frontend.activation-url}")
+    private String activationUrl;
+
+    public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initialized"));
 
+        // create the user from the request
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -36,14 +43,26 @@ public class AuthenticationService {
                 .enabled(false)
                 .roles(List.of(userRole))
                 .build();
+
+        // save it to user table in db
         userRepository.save(user);
+        //send validation email
         sendValidationEmail(user);
 
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
         // send email
+
+        emailService.sendEmail(
+                user.getEmail(),
+                user.fullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Account Activation"
+        );;
 
     }
 
