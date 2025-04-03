@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 //Controller => Service => Repository => DB
 // In order to do that we inject(DI) to prev state.
 // For example we inject service layer from controller in order to go from controller to service
-@RestController
+@RestController // Marks the class as a controller and allows it to receive HTTP requests
 @RequestMapping("auth")
 @RequiredArgsConstructor
 @Tag(name="Authentication")
