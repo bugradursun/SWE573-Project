@@ -1,5 +1,5 @@
-import Login from "./pages/Login/Login";
-import Signup from "./pages/Signup/Signup";
+import LoginPage from "./pages/Login/LoginPage";
+import RegisterPage from "./pages/Register/RegisterPage";
 import Feed from "./pages/Feed/Feed";
 import Header from "./Components/Header/Header";
 import "./App.css";
@@ -24,8 +24,8 @@ const App: React.FC = () => {
       {showHeader && <Header />}
       <Routes>
         <Route path="/" element={<Feed />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </>
   );
