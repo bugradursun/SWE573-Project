@@ -20,8 +20,10 @@ interface FormErrors {
 }
 
 interface RegisterResponse {
-  token?: string;
-  message: string;
+  username?: string;
+  email: string;
+  error?: string;
+  status?: number;
 }
 
 const RegisterPage: React.FC = () => {
@@ -104,8 +106,25 @@ const RegisterPage: React.FC = () => {
         });
         console.log("Register response: ", response);
         const data: RegisterResponse = await response.json();
+        console.log("data:", data);
+        if (data.username) {
+          setIsLoading(false);
+          setApiError(null);
+          navigate("/login");
+          console.log("Register successfull");
+        } else {
+          setIsLoading(false);
+          setApiError(data.error as string);
+          console.log("REGISTER FAILURE");
+        }
       } catch (error) {
-        console.log("Error from register api", error);
+        console.log("Register error:", error);
+        setIsLoading(false);
+        setApiError(
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred"
+        );
       }
     } else {
       setErrors(validationErrors);
@@ -124,7 +143,11 @@ const RegisterPage: React.FC = () => {
             </a>
           </p>
         </div>
-
+        {apiError && (
+          <div className="api-error">
+            <p>Email or user is already taken!</p>
+          </div>
+        )}
         <form className="register-form" onSubmit={handleSubmit}>
           <div className="form-fields">
             <div className="form-group">
