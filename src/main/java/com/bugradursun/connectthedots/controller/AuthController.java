@@ -5,6 +5,7 @@ import com.bugradursun.connectthedots.dto.AuthenticationResponseDto;
 import com.bugradursun.connectthedots.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody final AuthenticationRequestDto authenticationRequestDto) {
-        return ResponseEntity.ok(authenticationService.authenticate(authenticationRequestDto));
+        try{
+            AuthenticationResponseDto response = authenticationService.authenticate(authenticationRequestDto);
+            return ResponseEntity.ok(response);
+        } catch(BadCredentialsException e) {
+            AuthenticationResponseDto errorResponse = new AuthenticationResponseDto(null,"Wrong credentials");
+            return ResponseEntity.status(401).body(errorResponse);
+        }
     }
 }

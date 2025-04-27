@@ -19,6 +19,7 @@ public class AuthenticationService {
         final var authentication = authenticationManager.authenticate(authToken);
 
         final var token = jwtService.generateToken(request.username());
-        return new AuthenticationResponseDto(token);
+        final String message = "ok";
+        return new AuthenticationResponseDto(token,message);
     }
 }
