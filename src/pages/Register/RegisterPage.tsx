@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import "./RegisterPage.css";
+import { useNavigate } from "react-router-dom";
 interface FormData {
   email: string;
   username: string;
@@ -18,6 +19,11 @@ interface FormErrors {
   profession?: string;
 }
 
+interface RegisterResponse {
+  token?: string;
+  message: string;
+}
+
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -28,7 +34,10 @@ const RegisterPage: React.FC = () => {
     profession: "",
   });
 
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,12 +81,32 @@ const RegisterPage: React.FC = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate();
 
     if (Object.keys(validationErrors).length === 0) {
       console.log("No errors, form submitted:", formData);
+      console.log("Register form submitted");
+      setIsLoading(true);
+      try {
+        // why do we use await TWICE using fetch?
+        // in the first await we get the headers
+        // in the second await we get the body. because its parsing a response stream (bytes come in incrementally) not the entire payload at once
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            accepts: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+          credentials: "include",
+        });
+        console.log("Register response: ", response);
+        const data: RegisterResponse = await response.json();
+      } catch (error) {
+        console.log("Error from register api", error);
+      }
     } else {
       setErrors(validationErrors);
     }
