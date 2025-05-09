@@ -1,40 +1,142 @@
+// App.tsx
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import Header from "./Components/Header/Header";
+import HomePage from "./pages/Home/HomePage";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
-import Feed from "./pages/Feed/Feed";
-import Header from "./Components/Header/Header";
+import ProfilePage from "./pages/Profile/ProfilePage";
+import CreateBoard from "./pages/CreateBoard";
+
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./App.css";
-import { Route, Routes, BrowserRouter, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import EditProfile from "./pages/EditProfile";
+import BoardDetail from "./pages/BoardDetail";
 
-const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const location = useLocation(); // Get the current location
+// Layout component that conditionally renders Header
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/register";
+  const { currentUser } = useAuth();
 
-  useEffect(() => {
-    const user = localStorage.getItem("user"); //if user is stored in local storage
-    setIsAuthenticated(user ? true : false);
-  }, []);
-
-  const showHeader =
-    isAuthenticated &&
-    ["/discover", "/new-space", "/profile"].includes(location.pathname);
-  // / route içinde isAuthenticated ? <Discover> : <Login> ekle sonra
   return (
     <>
-      {showHeader && <Header />}
-      <Routes>
-        <Route path="/" element={<Feed />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>
+      {!isAuthPage && <Header username={currentUser?.username || "User"} />}
+      <main>{children}</main>
     </>
   );
 };
-const AppWrapper: React.FC = () => {
+
+// Protected route component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" />;
+  // }
+
+  return <>{children}</>;
+};
+
+const AppRoutes: React.FC = () => {
   return (
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/home" />} />
+      <Route
+  path="/create-board"
+  element={
+    <AppLayout>
+      <ProtectedRoute>
+        <CreateBoard />
+      </ProtectedRoute>
+    </AppLayout>
+  }
+/>
+<Route
+  path="/edit-profile"
+  element={
+    <AppLayout>
+      <ProtectedRoute>
+        <EditProfile />
+      </ProtectedRoute>
+    </AppLayout>
+  }
+/>
+<Route
+  path="/board/:id"
+  element={
+    <AppLayout>
+      <ProtectedRoute>
+        <BoardDetail />
+      </ProtectedRoute>
+    </AppLayout>
+  }
+/>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route
+        path="/home"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
+
+      <Route
+        path="/board/:id"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <BoardDetail />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
+
+      {/* Add more protected routes as needed */}
+
+      {/* Catch-all route for 404 */}
+      <Route path="*" element={<Navigate to="/home" />} />
+    </Routes>
   );
 };
-export default AppWrapper;
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;

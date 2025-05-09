@@ -80,11 +80,13 @@ const LoginPage: React.FC = () => {
         const data: LoginResponse = await response.json();
         console.log("data:", data);
         if (data.message === "ok") {
+          console.log("success");
           setIsLoading(false);
           setApiError(null);
-          navgiate("/");
+          navgiate("/home");
           localStorage.setItem("user", JSON.stringify(data.token));
         } else {
+          console.log("fail");
           setIsLoading(false);
           setApiError("Wrong credentials");
           console.log("AUTH FAILURE");
