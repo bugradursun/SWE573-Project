@@ -27,7 +27,7 @@ public class AuthController {
             AuthenticationResponseDto response = authenticationService.authenticate(authenticationRequestDto);
             return ResponseEntity.ok(response);
         } catch(BadCredentialsException e) {
-            AuthenticationResponseDto errorResponse = new AuthenticationResponseDto(null,"Wrong credentials");
+            AuthenticationResponseDto errorResponse = new AuthenticationResponseDto(null,"Wrong credentials","doesnt exist");
             return ResponseEntity.status(401).body(errorResponse);
         }
     }
