@@ -9,34 +9,33 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="users")
+@Table(name="boards")
 @Getter @Setter @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class) // createdDate,updatedDate gibi tarihleri takip etmek icin
-public class User {
+@EntityListeners(AuditingEntityListener.class) // createdDate,updatedData takip etmek icin
+public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false,unique = true)
-    private String username;
+    private String label;
 
     @Column(nullable = false,unique = true)
-    private String email;
+    private String title;
 
     @Column(nullable = false)
-    private String password;
+    private String content;
 
     @Column(nullable=false)
-    private String age;
+    private String createdBy;
 
     @Column(nullable = false)
-    private String profession;
+    private String description;
 
     @Column(name="created_at",nullable = false,updatable = false)
     @CreatedDate
@@ -45,12 +44,6 @@ public class User {
     @Column(name ="updated_at")
     @LastModifiedDate
     private Instant updatedAt;
-
-    @Column(name="contributions")
-    private List<String> contributions;
-
-    @Column(name="boards")
-    private List<String> boards;
 
 
 }

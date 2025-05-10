@@ -6,3 +6,8 @@ jwt:
 
 server:
   port: 8090
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
