@@ -1,5 +1,7 @@
 package com.bugradursun.connectthedots.controller;
 
+import com.bugradursun.connectthedots.dto.BoardRequestDto;
+import com.bugradursun.connectthedots.dto.BoardResponseDto;
 import com.bugradursun.connectthedots.entity.Board;
 import com.bugradursun.connectthedots.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -13,31 +15,27 @@ import java.util.UUID;
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
 public class BoardController {
-    //
 
     private final BoardService boardService;
 
     @PostMapping("/add")
-    public ResponseEntity<Board> addBoard(@RequestBody Board board) {
-        Board createdBoard = boardService.registerBoard(board);
-        return ResponseEntity.ok(createdBoard);
+    public ResponseEntity<BoardResponseDto> addBoard(@RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(boardService.registerBoard(boardRequestDto));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Board>> getAllBoards() {
+    public ResponseEntity<List<BoardResponseDto>> getAllBoards() {
         return ResponseEntity.ok(boardService.getAllBoards());
     }
 
     @GetMapping("/{label}")
-    public ResponseEntity<Board> getBoardByLabel(@PathVariable String label) {
-        return boardService.getBoardByLabel(label)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<BoardResponseDto> getBoardByLabel(@PathVariable String label) {
+        return ResponseEntity.ok(boardService.getBoardByLabel(label));
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<Board> updateBoard(@PathVariable UUID id, @RequestBody Board board) {
-        return ResponseEntity.ok(boardService.updateBoard(id,board));
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable UUID id, @RequestBody BoardRequestDto boardRequestDto) {
+        return ResponseEntity.ok(boardService.updateBoard(id,boardRequestDto));
     }
 
     @DeleteMapping("/delete/{id}")

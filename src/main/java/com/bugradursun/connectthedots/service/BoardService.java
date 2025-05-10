@@ -1,6 +1,9 @@
 package com.bugradursun.connectthedots.service;
 
+import com.bugradursun.connectthedots.dto.BoardRequestDto;
+import com.bugradursun.connectthedots.dto.BoardResponseDto;
 import com.bugradursun.connectthedots.entity.Board;
+import com.bugradursun.connectthedots.mapper.BoardMapper;
 import com.bugradursun.connectthedots.repository.BoardRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
@@ -15,51 +18,53 @@ public class BoardService {
 
     // BOARD SERVICE
     private final BoardRepository boardRepository;
+    private final BoardMapper boardMapper;
     // registerBoard
     // getAllBoards
     // getBoardByLabel
     // deleteBoardById
     // updateBoard
     @Transactional
-    public Board registerBoard(Board board) {
+    public BoardResponseDto registerBoard(BoardRequestDto boardRequestDto) {
         final var errors = new HashMap<String,String>();
-        if(boardRepository.existsByLabel(board.getLabel())) {
+        if(boardRepository.existsByLabel(boardRequestDto.label())) {
             errors.put("label","Board [%s] is already taken".formatted(board.getLabel()));
         }
-        if(boardRepository.existsByTitle(board.getTitle())) {
+        if(boardRepository.existsByTitle(boardRequestDto.title())) {
             errors.put("title","Title [%s] is  already taken".formatted(board.getTitle()));
         }
         if(!errors.isEmpty()) {
             throw new ValidationException(errors.toString());
         }
-        return boardRepository.save(board);
+        Board board = boardMapper.toEntity(boardRequestDto);
+        Board saved = boardRepository.save(board);
+        return boardMapper.toDto(saved);
     }
-    public List<Board> getAllBoards() {
-        return boardRepository.findAll();
+    public List<BoardResponseDto> getAllBoards() {
+        return boardRepository.findAll().stream().map(boardMapper::toDto).toList();
     }
-    public Optional<Board> getBoardByLabel(String label) {
-        return boardRepository.findByLabel(label);
+    public BoardResponseDto getBoardByLabel(String label) {
+        Board board = boardRepository.findByLabel(label)
+                .orElseThrow(() -> new NoSuchElementException("Board not found"));
+        return boardMapper.toDto(board);
     }
 
     @Transactional
-    public void deleteBoardById(UUID id) {
-        if(!boardRepository.existsById(id)) {
-            throw new NoSuchElementException("Board with ID [%s] not found".formatted(id));
-        }
+    public BoardResponseDto deleteBoardById(UUID id) {
         boardRepository.deleteById(id);
     }
 
-    public Board updateBoard(UUID id,Board updatedBoard) {
-        Board existingBoard = boardRepository.findById(id)
+    public BoardResponseDto updateBoard(UUID id,BoardRequestDto requestDto) {
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Board with ID [%s] not found".formatted(id)));
 
-        existingBoard.setLabel(updatedBoard.getLabel());
-        existingBoard.setTitle(updatedBoard.getTitle());
-        existingBoard.setContent(updatedBoard.getContent());
-        existingBoard.setCreatedBy(updatedBoard.getCreatedBy());
-        existingBoard.setDescription(updatedBoard.getDescription());
+        board.setLabel(requestDto.label());
+        board.setTitle(requestDto.title());
+        board.setContent(requestDto.content());
+        board.setCreatedBy(requestDto.createdBy());
+        board.setDescription(requestDto.description());
 
-        return boardRepository.save(existingBoard);
+        return boardMapper.toDto(boardRepository.save(board));
     }
 
 }
