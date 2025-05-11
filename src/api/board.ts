@@ -5,7 +5,7 @@ export interface BoardRequest {
     label:string;
     title:string;
     content:string;
-    createdBy?:string;
+    createdBy?:any;
     description:string;
 }
 

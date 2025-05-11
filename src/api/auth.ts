@@ -1,5 +1,5 @@
-import { getDefaultHeaders } from "./config";
-import { User } from '../models/types';
+import { getAuthHeaders, getDefaultHeaders } from "./config";
+import { GetMeResponse, User } from '../models/types';
 
 export interface LoginRequest {
     username: string;
@@ -25,6 +25,14 @@ export interface RegisterResponse {
     username?: string;
     email?: string;
     statusText?: string;
+}
+
+export interface UserProfile {
+    username: string;
+    email: string;
+    age?: number;
+    profession?: string;
+    displayName?: string;
 }
 
 export const authApi = {
@@ -70,6 +78,18 @@ export const authApi = {
         if (!response.ok) {
             throw new Error("Registration failed");
         }
+        return response.json();
+    },
+    getMe:async() :Promise<GetMeResponse> => {
+        const response = await fetch(`/api/user/me`,{
+            method:"GET",
+            headers:getAuthHeaders(),
+            credentials:"include",
+        });
+        if(!response.ok){
+            throw new Error("Failed to fetch user data");
+        }
+        console.log("Response of getMe endpoint",response);
         return response.json();
     }
 };

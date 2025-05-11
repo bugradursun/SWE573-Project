@@ -14,6 +14,15 @@ export interface User {
   postsCount: number;
 }
 
+export interface GetMeResponse {
+  email:string;
+  username:string;
+  age:string;
+  profession:string;
+  boards:any[]; // TODO: change this
+  contributions:any[]; // TODO: change this
+}
+
 
 export interface Board {
   id:number;

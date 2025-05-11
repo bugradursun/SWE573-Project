@@ -82,7 +82,7 @@ const CreateBoard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { currentUser, userEmail } = useAuth();
-  
+  console.log("current userxx",currentUser);
 
   console.log("Current user:", currentUser);
   console.log("User email:", userEmail);
@@ -98,7 +98,7 @@ const CreateBoard: React.FC = () => {
         title,
         content,
         description,
-        createdBy: localStorage.getItem("userEmail") || currentUser?.username || '',
+        createdBy: currentUser?.username,
       };
       console.log("Board data:", boardData);
       const response = await boardApi.addBoard(boardData);
