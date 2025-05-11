@@ -13,8 +13,9 @@ public class BoardMapper {
         board.setLabel(boardRequestDto.label());
         board.setTitle(boardRequestDto.title());
         board.setContent(boardRequestDto.content());
+        board.setUsername(boardRequestDto.username());
         board.setCreatedBy(boardRequestDto.createdBy());
-        board.setDescription(board.getDescription());
+        board.setDescription(boardRequestDto.description());
         return board;
     }
     public BoardResponseDto toDto(Board board) {
@@ -25,6 +26,7 @@ public class BoardMapper {
                 board.getContent(),
                 board.getCreatedBy(),
                 board.getDescription(),
+                board.getUsername(),
                 board.getCreatedAt(),
                 board.getUpdatedAt()
         );

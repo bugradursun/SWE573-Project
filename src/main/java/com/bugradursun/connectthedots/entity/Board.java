@@ -34,6 +34,9 @@ public class Board {
     @Column(nullable=false)
     private String createdBy;
 
+    @Column(nullable=false)
+    private String username;
+
     @Column(nullable = false)
     private String description;
 

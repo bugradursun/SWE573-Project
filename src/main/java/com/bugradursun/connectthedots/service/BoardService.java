@@ -28,10 +28,10 @@ public class BoardService {
     public BoardResponseDto registerBoard(BoardRequestDto boardRequestDto) {
         final var errors = new HashMap<String,String>();
         if(boardRepository.existsByLabel(boardRequestDto.label())) {
-            errors.put("label","Board [%s] is already taken".formatted(board.getLabel()));
+            errors.put("label","Board [%s] is already taken".formatted(boardRequestDto.label()));
         }
         if(boardRepository.existsByTitle(boardRequestDto.title())) {
-            errors.put("title","Title [%s] is  already taken".formatted(board.getTitle()));
+            errors.put("title","Title [%s] is  already taken".formatted(boardRequestDto.title()));
         }
         if(!errors.isEmpty()) {
             throw new ValidationException(errors.toString());
@@ -50,8 +50,9 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponseDto deleteBoardById(UUID id) {
+    public void deleteBoardById(UUID id) {
         boardRepository.deleteById(id);
+
     }
 
     public BoardResponseDto updateBoard(UUID id,BoardRequestDto requestDto) {

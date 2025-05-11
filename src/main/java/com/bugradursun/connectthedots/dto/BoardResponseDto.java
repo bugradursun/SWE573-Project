@@ -8,6 +8,7 @@ public record BoardResponseDto(
         String title,
         String content,
         String createdBy,
+        String username,
         String description,
         Instant createdAt,
         Instant updatedAt
