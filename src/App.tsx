@@ -25,10 +25,19 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
   const { currentUser } = useAuth();
+  console.log("current user in useAuth : ", currentUser);
 
   return (
     <>
-      {!isAuthPage && <Header username={currentUser?.username || "User"} />}
+      {!isAuthPage && (
+        <Header
+          username={
+            typeof currentUser === "string"
+              ? currentUser
+              : currentUser?.username || "User"
+          }
+        />
+      )}
       <main>{children}</main>
     </>
   );
@@ -56,35 +65,35 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/home" />} />
       <Route
-  path="/create-board"
-  element={
-    <AppLayout>
-      <ProtectedRoute>
-        <CreateBoard />
-      </ProtectedRoute>
-    </AppLayout>
-  }
-/>
-<Route
-  path="/edit-profile"
-  element={
-    <AppLayout>
-      <ProtectedRoute>
-        <EditProfile />
-      </ProtectedRoute>
-    </AppLayout>
-  }
-/>
-<Route
-  path="/board/:id"
-  element={
-    <AppLayout>
-      <ProtectedRoute>
-        <BoardDetail />
-      </ProtectedRoute>
-    </AppLayout>
-  }
-/>
+        path="/create-board"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <CreateBoard />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/edit-profile"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/board/:id"
+        element={
+          <AppLayout>
+            <ProtectedRoute>
+              <BoardDetail />
+            </ProtectedRoute>
+          </AppLayout>
+        }
+      />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 

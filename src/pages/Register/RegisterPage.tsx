@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import "./RegisterPage.css";
 import { useNavigate } from "react-router-dom";
+import { authApi, RegisterRequest } from "../../api/auth";
 interface FormData {
   email: string;
   username: string;
@@ -95,26 +96,16 @@ const RegisterPage: React.FC = () => {
         // why do we use await TWICE using fetch?
         // in the first await we get the headers
         // in the second await we get the body. because its parsing a response stream (bytes come in incrementally) not the entire payload at once
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            accepts: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-          credentials: "include",
-        });
-        console.log("Register response: ", response);
-        const data: RegisterResponse = await response.json();
-        console.log("data:", data);
-        if (data.username) {
+        const response = await authApi.register(formData as RegisterRequest)
+        console.log("abc",response)
+        if (response.username) {
           setIsLoading(false);
           setApiError(null);
           navigate("/login");
           console.log("Register successfull");
         } else {
           setIsLoading(false);
-          setApiError(data.error as string);
+          setApiError(response.statusText as string);
           console.log("REGISTER FAILURE");
         }
       } catch (error) {

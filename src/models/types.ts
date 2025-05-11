@@ -14,6 +14,18 @@ export interface User {
   postsCount: number;
 }
 
+
+export interface Board {
+  id:number;
+  label:string;
+  title:string;
+  content:string;
+  createdBy:string;
+  description:string;
+  createdAt?:any;
+  updatedAt?:any;
+}
+
 // Post related interfaces
 export interface Post {
   id: number;

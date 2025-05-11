@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./CreateBoard.css";
 import "./Home/Homepage.css";
 import { useNavigate } from "react-router-dom";
+import { boardApi } from "../api/board";
+import { useAuth } from "../context/AuthContext";
 
 // Static data for user (same as HomePage)
 const user = {
@@ -75,22 +77,48 @@ const CreateBoard: React.FC = () => {
   const [label, setLabel] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { currentUser, userEmail } = useAuth();
+  
 
-  const handleSubmit = (e: React.FormEvent) => {
+  console.log("Current user:", currentUser);
+  console.log("User email:", userEmail);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock: Log the form data
-    console.log({ label, title, content });
-    setLabel("");
-    setTitle("");
-    setContent("");
-    // In a real app, send this data to the backend
-  };
+    setIsLoading(true);
+    setError(null);
 
-  const submitButton = () => {
-    console.log("mocking api call for now");
-    navigate("/home")
-  }
+    try {
+      const boardData = {
+        label,
+        title,
+        content,
+        description,
+        createdBy: localStorage.getItem("userEmail") || currentUser?.username || '',
+      };
+      console.log("Board data:", boardData);
+      const response = await boardApi.addBoard(boardData);
+      console.log("Board added successfully:", response);
+      
+      // Clear form
+      setLabel("");
+      setTitle("");
+      setContent("");
+      setDescription("");
+      
+      // Navigate to the new board
+      navigate(`/board/${response.id}`);
+    } catch (error) {
+      console.error("Error adding board:", error);
+      setError(error instanceof Error ? error.message : "Failed to create board");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="home-container">
@@ -101,14 +129,14 @@ const CreateBoard: React.FC = () => {
             <div className="avatar-circle">D</div>
           </div>
           <div className="sidebar-user-info">
-            <div className="sidebar-displayname">{user.displayName}</div>
-            <div className="sidebar-username">{user.username}</div>
+            <div className="sidebar-displayname">{currentUser?.username || 'User'}</div>
+            <div className="sidebar-username">{currentUser?.username || 'user'}</div>
             <div className="sidebar-stats">
               <div>
-                <span className="stat-number">{user.boards}</span> Boards
+                <span className="stat-number">0</span> Boards
               </div>
               <div>
-                <span className="stat-number">{user.contributions}</span> Contributions
+                <span className="stat-number">0</span> Contributions
               </div>
             </div>
             <button className="sidebar-create-btn" onClick={() => navigate("/create-board")}>+ Create New Board</button>
@@ -121,6 +149,11 @@ const CreateBoard: React.FC = () => {
           <div className="feed-header">
             <h2>Create a New Board</h2>
           </div>
+          {error && (
+            <div className="api-error">
+              {error}
+            </div>
+          )}
           <div className="create-board-form-wrapper">
             <form className="create-board-form" onSubmit={handleSubmit}>
               <div className="form-group">
@@ -131,6 +164,7 @@ const CreateBoard: React.FC = () => {
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="form-group">
@@ -141,6 +175,7 @@ const CreateBoard: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="form-group">
@@ -151,10 +186,26 @@ const CreateBoard: React.FC = () => {
                   onChange={(e) => setContent(e.target.value)}
                   rows={5}
                   required
+                  disabled={isLoading}
                 />
               </div>
-              <button type="submit" className="create-board-btn" onClick={submitButton}>
-                Create Board
+              <div className="form-group">
+                <label htmlFor="description">Description</label>
+                <input
+                  id="description"
+                  type="text"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="create-board-btn"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Creating...' : 'Create Board'}
               </button>
             </form>
           </div>
@@ -165,17 +216,11 @@ const CreateBoard: React.FC = () => {
           <div className="your-boards-section">
             <h4 className="your-boards-title">Your Boards</h4>
             <div className="your-boards-list">
-              {userBoards.map((board) => (
-                <div className="your-board-card" key={board.id}>
-                  <div className="your-board-title">{board.title}</div>
-                  <div className="your-board-meta">
-                    Last updated: {board.updated}
-                  </div>
-                  <div className="your-board-stats">
-                    <span>{board.nodes} nodes</span> · <span>{board.contributors} contributors</span>
-                  </div>
-                </div>
-              ))}
+              {/* We'll populate this with real data later */}
+              <div className="your-board-card">
+                <div className="your-board-title">No boards yet</div>
+                <div className="your-board-meta">Create your first board!</div>
+              </div>
             </div>
           </div>
         </div>

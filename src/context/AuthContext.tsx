@@ -8,15 +8,14 @@ import React, {
 } from "react";
 
 interface User {
-  id: number;
   username: string;
-  email: string;
-  displayName: string;
+  email?: string;
 }
 
 interface AuthContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
+  userEmail: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
   loading: boolean;
@@ -29,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   loading: true,
+  userEmail: null,
 });
 
 // Custom hook to use the auth context
@@ -40,6 +40,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -49,10 +50,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const token = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
+        const savedUserEmail=localStorage.getItem("userEmail");
+        console.log("savedUserEmail",savedUserEmail);
 
         if (token && savedUser) {
-          // Here you could validate the token with your backend
-          setCurrentUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          console.log("Loaded user from localStorage:", parsedUser);
+          
+          setCurrentUser(parsedUser);
+          setUserEmail(savedUserEmail || parsedUser.email || null);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -70,9 +76,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Login function
   const login = (token: string, user: User) => {
+    console.log("Login called with user:", user);
+    
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userEmail",user.email || "xxx@gmail.com");
     setCurrentUser(user);
+    setUserEmail(user.email || null);
     setIsAuthenticated(true);
   };
 
@@ -81,12 +91,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setCurrentUser(null);
+    setUserEmail(null);
     setIsAuthenticated(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, isAuthenticated, login, logout, loading }}
+      value={{ currentUser, userEmail, isAuthenticated, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,6 +1,9 @@
 import "./LoginPage.css";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { User } from "../../models/types";
+import { authApi, LoginRequest } from "../../api/auth";
 
 interface LoginFormData {
   username: string;
@@ -15,6 +18,7 @@ interface LoginFormErrors {
 interface LoginResponse {
   token?: string;
   message?: string;
+  username?: User;
 }
 
 const LoginPage: React.FC = () => {
@@ -23,10 +27,11 @@ const LoginPage: React.FC = () => {
     password: "",
   });
 
-  const navgiate = useNavigate();
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,37 +64,29 @@ const LoginPage: React.FC = () => {
 
     return newErrors;
   };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      console.log("Login form submitted!", formData);
       try {
         setIsLoading(true);
         setApiError(null);
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            accepts: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-          credentials: "include", //include cookies for api uses cookie based authentication
-        });
-        console.log("Login response:", response);
-        const data: LoginResponse = await response.json();
-        console.log("data:", data);
-        if (data.message === "ok") {
-          console.log("success");
+        
+        const data = await authApi.login(formData as LoginRequest);
+        console.log("login data xxx",data);
+        if (data.message === "ok" && data.token && data.username) {
+          login(data.token, data.username);
           setIsLoading(false);
           setApiError(null);
-          navgiate("/home");
-          localStorage.setItem("user", JSON.stringify(data.token));
+          navigate("/home");
+          localStorage.setItem("user", JSON.stringify({
+            username:data.username,
+            email:data.email
+          }));
         } else {
-          console.log("fail");
           setIsLoading(false);
           setApiError("Wrong credentials");
-          console.log("AUTH FAILURE");
         }
       } catch (error) {
         console.log("Login error:", error);
@@ -102,7 +99,6 @@ const LoginPage: React.FC = () => {
       }
     } else {
       setErrors(validationErrors);
-      console.log("Validation error ocurred!");
     }
   };
 
