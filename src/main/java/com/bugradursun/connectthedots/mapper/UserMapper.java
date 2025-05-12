@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
     public UserProfileDto toUserProfileDto(final User user) { // entity => DTO
-        return new UserProfileDto(user.getEmail(),user.getUsername());
+        return new UserProfileDto(user.getEmail(),user.getUsername(),user.getAge(),user.getProfession(),user.getBoards(),user.getContributions());
     }
 }

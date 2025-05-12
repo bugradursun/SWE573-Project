@@ -5,6 +5,5 @@ public record BoardRequestDto(
         String title,
         String content,
         String createdBy,
-        String username,
         String description
 ) {}

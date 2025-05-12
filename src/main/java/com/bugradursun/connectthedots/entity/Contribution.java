@@ -9,45 +9,33 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="boards")
+@Table(name="contributions")
 @Getter @Setter @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class) // createdDate,updatedDate takip etmek icin
-public class Board {
+@EntityListeners(AuditingEntityListener.class)
+
+public class Contribution {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue
     private UUID id;
-
-    @Column(nullable = false,unique = true)
-    private String label;
-
-    @Column(nullable = false,unique = true)
-    private String title;
-
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Contribution> contributions;
 
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable=false)
-    private String createdBy;
-
+    @ManyToOne
+    @JoinColumn(name = "board_id",nullable = false)
+    private Board board;
 
     @Column(nullable = false)
-    private String description;
+    String createdBy;
 
-    @Column(name="created_at",nullable = false,updatable = false)
     @CreatedDate
     private Instant createdAt;
 
-    @Column(name ="updated_at")
     @LastModifiedDate
     private Instant updatedAt;
-
 
 }

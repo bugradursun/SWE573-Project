@@ -9,7 +9,6 @@ import java.util.UUID;
 public interface BoardRepository extends JpaRepository<Board, UUID> {
 
     Optional<Board> findByLabel(String label);
-    Optional<Board> findByUsername(String username);
     boolean existsByLabel(String label);
     boolean existsByTitle(String title);
 }
