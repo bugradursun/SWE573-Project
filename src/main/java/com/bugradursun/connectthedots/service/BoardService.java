@@ -8,7 +8,9 @@ import com.bugradursun.connectthedots.repository.BoardRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -53,6 +55,11 @@ public class BoardService {
     public void deleteBoardById(UUID id) {
         boardRepository.deleteById(id);
 
+    }
+
+    public Board getBoardById(UUID boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND," Board not found!"));
     }
 
     public BoardResponseDto updateBoard(UUID id,BoardRequestDto requestDto) {
