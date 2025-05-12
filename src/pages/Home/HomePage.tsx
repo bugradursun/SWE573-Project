@@ -1,7 +1,8 @@
 // HomePage.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Homepage.css";
 import { useNavigate } from "react-router-dom";
+import { boardApi } from "../../api/board";
 
 // Static data for user
 const user = {
@@ -11,22 +12,7 @@ const user = {
   contributions: 0,
 };
 
-// Static data for recommended boards
-const recommendedBoards = [
-  {
-    id: 1,
-    title: "Where do green parrots in Bosphorus area come from?",
-    description:
-      "This board was created to discuss where the green parrots in the Bosphorus region come from.",
-    author: "dsonbay2",
-  },
-  {
-    id: 2,
-    title: "123",
-    description: "123",
-    author: "dennis",
-  },
-];
+
 
 // Static data for user's boards
 const userBoards = [
@@ -90,6 +76,48 @@ const userBoards = [
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const [boards, setBoards] = useState<any[]>([]);
+  const [othersBoards, setOthersBoards] = useState<any[]>([]);
+  const [yourBoards, setYourBoards] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const localStorageUserStr: any = localStorage.getItem("user");
+  const localStorageUser: any = localStorageUserStr ? JSON.parse(localStorageUserStr) : null;
+  console.log("Local storage user:", localStorageUser);
+  useEffect(() => {
+    const fetchAllBoards = async () => {
+      try {
+        const response = await boardApi.getAllBoards();
+        console.log("All boards:", response);
+        const filteredBoards = response.filter((board:any) => board.createdBy !==localStorageUser?.username);
+        console.log("Filtered boards:", filteredBoards);
+        setBoards(response);
+        setOthersBoards(filteredBoards);
+        console.log("Others boards:", othersBoards);
+        setYourBoards(response.filter((board:any) => board.createdBy === localStorageUser?.username));
+        console.log("xxxx",localStorageUser.username);
+        console.log("Your boards:", yourBoards);
+      } catch (error) {
+        console.error("Error fetching boards:", error);
+      }
+    }
+    fetchAllBoards();
+  },[])
+
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = othersBoards.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(othersBoards.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
 
   return (
     <div className="home-container">
@@ -120,9 +148,19 @@ const HomePage: React.FC = () => {
         <div className="feed">
           <div className="feed-header">
             <h2>Recommended Boards</h2>
+            <div className="pagination-controls">
+              <select 
+                value={itemsPerPage} 
+                onChange={handleItemsPerPageChange}
+                className="items-per-page-select"
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+              </select>
+            </div>
           </div>
           <div className="recommended-boards-list">
-            {recommendedBoards.map((board) => (
+            {currentItems.map((board) => (
               <div className="recommended-board-card" key={board.id}>
                 <div className="recommended-board-title">{board.title}</div>
                 <div className="recommended-board-description">
@@ -131,14 +169,33 @@ const HomePage: React.FC = () => {
                 <div className="recommended-board-footer">
                   <div className="recommended-board-author">
                     <span className="avatar-circle small">
-                      {board.author[0].toUpperCase()}
+                      {board.createdBy.charAt(0)}
                     </span>{" "}
-                    {board.author}
+                    {board.createdBy}
                   </div>
                   <button className="investigate-btn" onClick={() => navigate(`/board/${board.id}`)}>Investigate</button>
                 </div>
               </div>
             ))}
+          </div>
+          <div className="pagination">
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-btn"
+            >
+              Previous
+            </button>
+            <span className="pagination-info">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn"
+            >
+              Next
+            </button>
           </div>
         </div>
 
@@ -147,7 +204,7 @@ const HomePage: React.FC = () => {
           <div className="your-boards-section">
             <h4 className="your-boards-title">Your Boards</h4>
             <div className="your-boards-list">
-              {userBoards.map((board) => (
+              {yourBoards.map((board) => (
                 <div className="your-board-card" key={board.id}>
                   <div className="your-board-title">{board.title}</div>
                   <div className="your-board-meta">

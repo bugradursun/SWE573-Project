@@ -98,7 +98,7 @@ const CreateBoard: React.FC = () => {
         title,
         content,
         description,
-        createdBy: currentUser?.username,
+        createdBy: currentUser,
       };
       console.log("Board data:", boardData);
       const response = await boardApi.addBoard(boardData);

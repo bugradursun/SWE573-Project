@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./CreateBoard.css";
+import { error } from "console";
+import { authApi } from "../api/auth";
 
 const EditProfile: React.FC = () => {
   const [profession, setProfession] = useState("");
@@ -7,12 +9,26 @@ const EditProfile: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [error,setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit =async (e: React.FormEvent) => {
     e.preventDefault();
     // Mock: Log the form data
     console.log({ profession, age, email, password, username });
     // In a real app, send this data to the backend
+    try {
+      const updatedUser = await authApi.updateUser({
+        username,
+        email,
+        age:parseInt(age),
+        profession,
+      });
+      console.log("Updated user:",updatedUser);
+      setError("");
+    } catch(error){
+      console.error("Error updating profile",error);
+      setError("Failed to update profile");
+    }
   };
 
   return (
@@ -26,7 +42,7 @@ const EditProfile: React.FC = () => {
             type="text"
             value={profession}
             onChange={(e) => setProfession(e.target.value)}
-            required
+            
           />
         </div>
         <div className="form-group">
@@ -36,7 +52,7 @@ const EditProfile: React.FC = () => {
             type="number"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            required
+            
           />
         </div>
         <div className="form-group">
@@ -46,7 +62,7 @@ const EditProfile: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
+            
           />
         </div>
         <div className="form-group">
@@ -56,7 +72,7 @@ const EditProfile: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
+            
           />
         </div>
         <div className="form-group">
@@ -66,7 +82,7 @@ const EditProfile: React.FC = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
+            
           />
         </div>
         <button type="submit" className="create-board-btn">

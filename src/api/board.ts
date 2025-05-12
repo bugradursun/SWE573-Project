@@ -68,5 +68,14 @@ export const boardApi = {
         }
         console.log("Get board by label response:",response);
         return response.json();
+    },
+    fetchBoardGraph:async(boardId:string) : Promise<any> => {
+        const response = await fetch(`/api/board-flow/${boardId}`,{
+            method:"GET",
+            headers:getAuthHeaders(),
+            credentials:'include',
+        });
+        console.log("Board flow response:",response);
+        return response.json();
     }
 }

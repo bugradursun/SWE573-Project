@@ -91,5 +91,17 @@ export const authApi = {
         }
         console.log("Response of getMe endpoint",response);
         return response.json();
+    },
+    updateUser:async(data:UserProfile):Promise<UserProfile> => {
+        const response = await fetch(`/api/user/update`, {
+            method:"POST",
+            headers:getAuthHeaders(),
+            credentials:"include",
+        });
+        if(!response.ok) {
+            throw new Error("Failed to update user!");
+        }
+        console.log("Response of update user endpoint",response);
+        return response.json();
     }
 };
