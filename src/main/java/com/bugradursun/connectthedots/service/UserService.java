@@ -23,6 +23,10 @@ public class UserService {
 
     }
 
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
     public User updateUser(String username, UserUpdateRequestDto updateDto) {
         User user = getByUsername(username); // fetch user
 
