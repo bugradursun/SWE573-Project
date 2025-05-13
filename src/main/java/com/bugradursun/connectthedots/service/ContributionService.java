@@ -27,8 +27,9 @@ public class ContributionService {
         contribution.setCreatedBy(createdBy);
         contribution.setCreatedAt(Instant.now());
 
+
         if(parentId!= null) {
-            Contribution parent = contributionRepository.findById(boardId)
+            Contribution parent = contributionRepository.findById(parentId)
                     .orElseThrow(() -> new RuntimeException("Parent contribution not found"));
             contribution.setParent(parent);
         }
