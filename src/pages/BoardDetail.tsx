@@ -58,6 +58,7 @@ const BoardDetail: React.FC = () => {
   const { id } = useParams();
   const [nodes, setNodes] = useState<NodeData[]>([]);
   const [edges, setEdges] = useState<EdgeData[]>([]);
+  const [loading,setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [newContribution, setNewContribution] = useState("");
@@ -68,15 +69,23 @@ const BoardDetail: React.FC = () => {
     if(!id) return;
 
     const loadData = async() => {
+      setLoading(true);
       try {
         const data = await boardApi.fetchBoardGraph(id);
-        console.log("Board data:", data);
-        setNodes(data.nodes);
-        setEdges(data.edges);
-        setTitle(data.nodes[0]?.data?.label || "");
-        setDescription(data.description || "");
+        console.log("Initial board data:", data);
+        
+        if (data && data.nodes && data.edges) {
+          setNodes(data.nodes);
+          setEdges(data.edges);
+          setTitle(data.nodes[0]?.data?.label || "");
+          setDescription(data.description || "");
+        } else {
+          console.error("Invalid initial board data received:", data);
+        }
       } catch (error) {
         console.error("Error loading board data:", error);
+      } finally {
+        setLoading(false);
       }
     }
     loadData();
@@ -89,21 +98,30 @@ const BoardDetail: React.FC = () => {
     const user = localStorage.getItem('user');
     if (!user) {
       console.error("User not found in localStorage");
-      
       return;
     }
 
+    setLoading(true);
     try {
-      await boardApi.addContribution(id, newContribution, selectedParentId, user);
+      const contributionResponse = await boardApi.addContribution(id, newContribution, selectedParentId, user);
+      console.log("Contribution added successfully:", contributionResponse);
       
       // After successful API call, refresh the board data
       const updatedData = await boardApi.fetchBoardGraph(id);
-      setNodes(updatedData.nodes);
-      setEdges(updatedData.edges);
-      setNewContribution("");
-      setSelectedParentId(undefined);
+      console.log("Updated board data:", updatedData);
+      
+      if (updatedData && updatedData.nodes && updatedData.edges) {
+        setNodes(updatedData.nodes);
+        setEdges(updatedData.edges);
+        setNewContribution("");
+        setSelectedParentId(undefined);
+      } else {
+        console.error("Invalid board data received:", updatedData);
+      }
     } catch (error) {
       console.error("Failed to add contribution:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,6 +129,9 @@ const BoardDetail: React.FC = () => {
     <div className="create-board-container">
       <div className="create-board-form" style={{ maxWidth: 900 }}>
         <h1 style={{ textAlign: "center" }}>{title}</h1>
+        {loading && <div className="loading-overlay">
+          <div className="loading-spinner"></div>
+        </div>}
         <p style={{ textAlign: "center", color: "#4a5568" }}>{description}</p>
         <div style={{ height: 400, background: "#f8fafc", borderRadius: 12, marginTop: 32 }}>
           <ReactFlow nodes={nodes} edges={edges} fitView>

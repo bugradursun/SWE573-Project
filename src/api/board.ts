@@ -75,8 +75,20 @@ export const boardApi = {
             headers:getAuthHeaders(),
             credentials:'include',
         });
-        console.log("Board flow response:",response);
-        return response.json();
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Board flow fetch failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorText
+            });
+            throw new Error(`Failed to fetch board flow: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log("Board flow response:", data);
+        return data;
     },
     addContribution: async(boardId: string, content: string, parentId?: string, createdBy?: string): Promise<any> => {
         const response = await fetch(`/api/contributions/add`, {
@@ -95,9 +107,18 @@ export const boardApi = {
         });
         
         if (!response.ok) {
-            throw new Error("Failed to add contribution");
+            const errorText = await response.text();
+            console.error('Contribution creation failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: errorText
+            });
+            throw new Error(`Failed to add contribution: ${response.statusText}`);
         }
-        console.log("Add contribution response:", response);
-        return response.json();
+        
+        // Since the response is just a success message, we don't need to parse it as JSON
+        const responseText = await response.text();
+        console.log("Add contribution response:", responseText);
+        return responseText;
     }
 }
