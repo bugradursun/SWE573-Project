@@ -77,5 +77,27 @@ export const boardApi = {
         });
         console.log("Board flow response:",response);
         return response.json();
+    },
+    addContribution: async(boardId: string, content: string, parentId?: string, createdBy?: string): Promise<any> => {
+        const response = await fetch(`/api/contributions/add`, {
+            method: "POST",
+            headers: {
+                ...getAuthHeaders(),
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                boardId,
+                content,
+                parentId,
+                createdBy
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error("Failed to add contribution");
+        }
+        console.log("Add contribution response:", response);
+        return response.json();
     }
 }
