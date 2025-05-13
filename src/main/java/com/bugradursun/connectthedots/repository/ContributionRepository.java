@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface ContributionRepository extends JpaRepository<Contribution, UUID> {
-    List<Contribution> findByBoard_Id(UUID boardId);
+    List<Contribution> findByBoardId(UUID boardId);
 
 }

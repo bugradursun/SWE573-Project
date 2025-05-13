@@ -9,6 +9,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +30,13 @@ public class Contribution {
     @ManyToOne
     @JoinColumn(name = "board_id",nullable = false)
     private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Contribution parent;
+
+     @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
+     private List<Contribution> children = new ArrayList<>();
 
     @Column(nullable = false)
     String createdBy;
