@@ -205,7 +205,7 @@ const HomePage: React.FC = () => {
             <h4 className="your-boards-title">Your Boards</h4>
             <div className="your-boards-list">
               {yourBoards.map((board) => (
-                <div className="your-board-card" key={board.id}>
+                <div className="your-board-card" key={board.id} onClick={() => navigate(`/board/${board.id}`)} style={{cursor:'pointer'}}>
                   <div className="your-board-title">{board.title}</div>
                   <div className="your-board-meta">
                     Last updated: {board.updated}

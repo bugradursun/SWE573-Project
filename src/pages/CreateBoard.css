@@ -31,6 +31,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    position: relative;
   }
   
   .form-group label {
@@ -77,5 +78,102 @@
     .create-board-form {
       padding: 1.2rem 0.5rem;
     }
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 400px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    color: #2d3748;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #4a5568;
+    padding: 0;
+    line-height: 1;
+  }
+  
+  .close-button:hover {
+    color: #2d3748;
+  }
+  
+  .modal-body {
+    margin-top: 10px;
+  }
+  
+  .wikidata-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 4px;
+  }
+  
+  .wikidata-result-item {
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s;
+  }
+  
+  .wikidata-result-item:last-child {
+    border-bottom: none;
+  }
+  
+  .wikidata-result-item:hover {
+    background-color: #f7fafc;
+  }
+  
+  .wikidata-result-item h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 600;
+  }
+  
+  .wikidata-result-item p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #718096;
   }
   

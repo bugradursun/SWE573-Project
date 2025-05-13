@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 interface User {
-  username: string;
+  username?: string;
   email?: string;
 }
 
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login function
-  const login = (token: string, user: User) => {
+  const login = (token: string, user: any) => {
     console.log("Login called with user:", user);
     
     localStorage.setItem("token", token);

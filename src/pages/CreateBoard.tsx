@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./CreateBoard.css";
 import "./Home/Homepage.css";
 import { useNavigate } from "react-router-dom";
-import { boardApi } from "../api/board";
+import { boardApi, BoardResponse } from "../api/board";
 import { useAuth } from "../context/AuthContext";
 
 // Static data for user (same as HomePage)
@@ -13,65 +13,12 @@ const user = {
   contributions: 0,
 };
 
-// Static data for user's boards (same as HomePage)
-const userBoards = [
-  {
-    id: 1,
-    title: "What happened to Emily?",
-    updated: "-",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 2,
-    title: "What is happening?",
-    updated: "2024-06-05",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 3,
-    title: "This is an example board title 1",
-    updated: "2024-06-06",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 4,
-    title: "New board",
-    updated: "2024-06-06",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 5,
-    title: "new 2",
-    updated: "2024-06-06",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 6,
-    title: "qweadasdas",
-    updated: "-",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 7,
-    title: "234123",
-    updated: "-",
-    nodes: 0,
-    contributors: 0,
-  },
-  {
-    id: 8,
-    title: "asdasd",
-    updated: "2024-06-10",
-    nodes: 0,
-    contributors: 0,
-  },
-];
+interface WikidataResult {
+  id: string;
+  label: string;
+  description: string;
+  url: string;
+}
 
 const CreateBoard: React.FC = () => {
   const [label, setLabel] = useState("");
@@ -79,13 +26,59 @@ const CreateBoard: React.FC = () => {
   const [content, setContent] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [boards, setBoards] = useState<BoardResponse[]>([]);
+  const [userBoards, setUserBoards] = useState<BoardResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { currentUser, userEmail } = useAuth();
-  console.log("current userxx",currentUser);
+  const [wikidataResults, setWikidataResults] = useState<WikidataResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
-  console.log("Current user:", currentUser);
-  console.log("User email:", userEmail);
+  useEffect(() => {
+    const fetchAllBoards = async () => {
+      try {
+        const response = await boardApi.getAllBoards();
+        setBoards(response);
+        const boardsToShow = response.filter(board => board.createdBy === currentUser);
+        setUserBoards(boardsToShow);
+      } catch (error) {
+        console.error("Error fetching boards:", error);
+      }
+    };
+    fetchAllBoards();
+  }, [currentUser]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    if (newTitle.length > 2) {
+      const timeout = setTimeout(async () => {
+        try {
+          const results = await boardApi.searchWikidata(newTitle);
+          setWikidataResults(results);
+          setShowResults(true);
+        } catch (error) {
+          console.error("Failed to search Wikidata:", error);
+        }
+      }, 500);
+      setSearchTimeout(timeout);
+    } else {
+      setWikidataResults([]);
+      setShowResults(false);
+    }
+  };
+
+  const handleWikidataSelect = (result: WikidataResult) => {
+    setTitle(result.label);
+    setDescription(result.description);
+    setShowResults(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,11 +91,9 @@ const CreateBoard: React.FC = () => {
         title,
         content,
         description,
-        createdBy: currentUser,
+        createdBy: currentUser
       };
-      console.log("Board data:", boardData);
       const response = await boardApi.addBoard(boardData);
-      console.log("Board added successfully:", response);
       
       // Clear form
       setLabel("");
@@ -133,7 +124,7 @@ const CreateBoard: React.FC = () => {
             <div className="sidebar-username">{currentUser?.username || 'user'}</div>
             <div className="sidebar-stats">
               <div>
-                <span className="stat-number">0</span> Boards
+                <span className="stat-number">{userBoards.length}</span> Boards
               </div>
               <div>
                 <span className="stat-number">0</span> Contributions
@@ -173,10 +164,24 @@ const CreateBoard: React.FC = () => {
                   id="title"
                   type="text"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={handleTitleChange}
                   required
                   disabled={isLoading}
                 />
+                {showResults && wikidataResults.length > 0 && (
+                  <div className="wikidata-results">
+                    {wikidataResults.map((result) => (
+                      <div
+                        key={result.id}
+                        className="wikidata-result-item"
+                        onClick={() => handleWikidataSelect(result)}
+                      >
+                        <h3>{result.label}</h3>
+                        <p>{result.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="content">Content</label>
@@ -216,11 +221,27 @@ const CreateBoard: React.FC = () => {
           <div className="your-boards-section">
             <h4 className="your-boards-title">Your Boards</h4>
             <div className="your-boards-list">
-              {/* We'll populate this with real data later */}
-              <div className="your-board-card">
-                <div className="your-board-title">No boards yet</div>
-                <div className="your-board-meta">Create your first board!</div>
-              </div>
+              {userBoards.length === 0 ? (
+                <div className="no-boards-message">You haven't created any boards yet.</div>
+              ) : (
+                userBoards.map((board) => (
+                  <div 
+                    className="your-board-card" 
+                    key={board.id}
+                    onClick={() => navigate(`/board/${board.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="your-board-title">{board.title}</div>
+                    <div className="your-board-description">{board.description}</div>
+                    <div className="your-board-footer">
+                      <span className="board-label">{board.label}</span>
+                      <span className="board-date">
+                        {new Date(board.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

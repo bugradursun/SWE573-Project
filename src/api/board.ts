@@ -120,5 +120,61 @@ export const boardApi = {
         const responseText = await response.text();
         console.log("Add contribution response:", responseText);
         return responseText;
+    },
+    deleteContribution: async(contributionId:string):Promise<any> => {
+        const response = await fetch(`/api/contributions/delete`,{
+            method:"DELETE",
+            headers:{
+                ...getAuthHeaders(),
+                'Content-Type':'application/json'
+            },
+            credentials:'include',
+            body:JSON.stringify({contributionId})
+        })
+        if(!response.ok) {
+            const errorText =await response.text();
+            console.error('Contribution deletion failed!',{
+                status:response.status,
+                statusText:response.statusText,
+                error:errorText
+            });
+            throw new Error(`Failed to delete contribution: ${response.statusText}`);
+        }
+        const responseText = await response.text();
+        console.log("Contribution deleted successfully:",responseText);
+        return responseText;
+    },
+    updateContribution:async(contributionId:string,content:string) : Promise<any> => {
+        const response = await fetch(`/api/contributions/update`,{
+            method:"PUT",
+            headers:{
+                ...getAuthHeaders(),
+                'Content-Type':'application/json'
+            },
+            credentials:'include',
+            body:JSON.stringify({contributionId,content})
+        })
+        if(!response.ok) {
+            const errorText = await response.text();
+            console.error('Contribution update failed',{
+                status:response.status,
+                statusText:response.statusText,
+                error:errorText
+            });
+            throw new Error(`Failed to update contribution: ${response.statusText}`);
+        }
+        const responseText = await response.text();
+        console.log("Contribution updated successfully:",responseText);
+        return responseText;
+    },
+    searchWikidata: async(query: string): Promise<any> => {
+        const response = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`);
+        
+        if (!response.ok) {
+            throw new Error("Failed to search Wikidata");
+        }
+        
+        const data = await response.json();
+        return data.search;
     }
 }
