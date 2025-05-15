@@ -46,4 +46,6 @@ public class EdgeService {
         return edgeRepository.findByBoardId(boardId).stream()
                 .map(EdgeMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
 }

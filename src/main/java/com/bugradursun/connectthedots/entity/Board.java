@@ -29,7 +29,7 @@ public class Board {
     private String title;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Contribution> contributions;
+    private List<Node> nodes;
 
     @Column(nullable = false)
     private String content;
