@@ -134,26 +134,29 @@
     margin-top: 10px;
   }
   
+  .wikidata-search-container {
+    position: relative;
+    width: 100%;
+  }
+  
   .wikidata-results {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-height: 300px;
     overflow-y: auto;
     z-index: 1000;
-    margin-top: 4px;
   }
   
   .wikidata-result-item {
-    padding: 12px;
+    padding: 10px;
     cursor: pointer;
-    border-bottom: 1px solid #e2e8f0;
-    transition: background-color 0.2s;
+    border-bottom: 1px solid #eee;
   }
   
   .wikidata-result-item:last-child {
@@ -161,19 +164,44 @@
   }
   
   .wikidata-result-item:hover {
-    background-color: #f7fafc;
+    background-color: #f5f5f5;
   }
   
-  .wikidata-result-item h3 {
-    margin: 0;
-    font-size: 14px;
-    color: #2d3748;
-    font-weight: 600;
+  .result-label {
+    font-weight: 500;
+    color: #333;
   }
   
-  .wikidata-result-item p {
-    margin: 4px 0 0;
-    font-size: 12px;
-    color: #718096;
+  .result-description {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .search-loading {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .node-details {
+    padding: 1rem;
+  }
+  
+  .node-detail-item {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f7fafc;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .node-detail-item strong {
+    color: #4a5568;
+    margin-right: 0.5rem;
   }
   

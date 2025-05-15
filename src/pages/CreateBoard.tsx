@@ -29,6 +29,8 @@ const CreateBoard: React.FC = () => {
   const [boards, setBoards] = useState<BoardResponse[]>([]);
   const [userBoards, setUserBoards] = useState<BoardResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [wikidataResults, setWikidataResults] = useState<WikidataResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   console.log("current userxxx",currentUser)
@@ -46,6 +48,64 @@ const CreateBoard: React.FC = () => {
     };
     fetchAllBoards();
   }, [currentUser]);
+
+  // Debounce function to limit API calls
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
+
+  // Search Wikidata API
+  const searchWikidata = async (query: string) => {
+    if (!query.trim()) {
+      setWikidataResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(
+          query
+        )}&language=en&format=json&origin=*`
+      );
+      const data = await response.json();
+      console.log("wikidata data debug:",data);
+      const results = data.search.map((item: any) => ({
+        id: item.id,
+        label: item.label,
+        description: item.description,
+        url: `https://www.wikidata.org/wiki/${item.id}`,
+      }));
+      console.log("wikidata results debug:",results);
+      setWikidataResults(results);
+    } catch (error) {
+      console.error("Error searching Wikidata:", error);
+      setWikidataResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounced search function
+  const debouncedSearch = debounce(searchWikidata, 500);
+
+  // Handle title change
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    debouncedSearch(newTitle);
+  };
+
+  // Handle Wikidata result selection
+  const handleWikidataSelect = (result: WikidataResult) => {
+    setTitle(result.label);
+    setDescription(result.description);
+    setWikidataResults([]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,15 +195,32 @@ const CreateBoard: React.FC = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
-                <input
-                  id="title"
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  placeholder="Enter a title for your board"
-                />
+                <div className="wikidata-search-container">
+                  <input
+                    id="title"
+                    type="text"
+                    value={title}
+                    onChange={handleTitleChange}
+                    required
+                    disabled={isLoading}
+                    placeholder="Enter a title for your board"
+                  />
+                  {isSearching && <div className="search-loading">Searching...</div>}
+                  {wikidataResults.length > 0 && (
+                    <div className="wikidata-results">
+                      {wikidataResults.map((result) => (
+                        <div
+                          key={result.id}
+                          className="wikidata-result-item"
+                          onClick={() => handleWikidataSelect(result)}
+                        >
+                          <div className="result-label">{result.label}</div>
+                          <div className="result-description">{result.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="content">Content</label>
@@ -192,7 +269,7 @@ const CreateBoard: React.FC = () => {
                   <div 
                     className="your-board-card" 
                     key={board.id}
-                    onClick={() => navigate(`/board/${board.id}`)}
+                    onClick={() => navigate(`/board/${board.label}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <div className="your-board-title">{board.title}</div>

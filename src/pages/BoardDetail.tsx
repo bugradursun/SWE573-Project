@@ -16,47 +16,6 @@ import { nodeApi, NodeDto } from "../api/node";
 import { edgeApi, EdgeDto } from "../api/edge";
 import { useAuth } from "../context/AuthContext";
 
-// Dummy board data
-const boards = [
-  {
-    id: "1",
-    title: "Where do green parrots in Bosphorus area come from?",
-    description:
-      "This board was created to discuss where the green parrots in the Bosphorus region come from.",
-    nodes: [
-      {
-        id: "1",
-        data: { label: "Initial Question" },
-        position: { x: 100, y: 100 },
-      },
-      {
-        id: "2",
-        data: { label: "Contribution A" },
-        position: { x: 300, y: 100 },
-      },
-      {
-        id: "3",
-        data: { label: "Contribution B" },
-        position: { x: 200, y: 250 },
-      },
-    ],
-    edges: [
-      { id: "e1-2", source: "1", target: "2", animated: true },
-      { id: "e1-3", source: "1", target: "3" },
-    ],
-  },
-  {
-    id: "2",
-    title: "123",
-    description: "123",
-    nodes: [
-      { id: "1", data: { label: "Start" }, position: { x: 100, y: 100 } },
-      { id: "2", data: { label: "Node 2" }, position: { x: 300, y: 100 } },
-    ],
-    edges: [{ id: "e1-2", source: "1", target: "2" }],
-  },
-];
-
 interface NodeData {
   label: string;
 }
@@ -73,6 +32,12 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   title: string;
+}
+
+interface NodeDetails {
+  id:string;
+  data:{label:string};
+  position:{x:number,y:number};
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
@@ -102,11 +67,15 @@ const BoardDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [createdBy,setCreatedBy] = useState("");
+  const [wikiTitle,setWikiTitle] = useState("");
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isNodeDetailsModalOpen,setIsNodeDetailsModalOpen] = useState(false);
+  const [selectedNodeDetails,setSelectedNodeDetails] = useState<NodeDetails | null>(null);
 
   // Form states
   const [newNodeContent, setNewNodeContent] = useState("");
@@ -123,7 +92,10 @@ const BoardDetail: React.FC = () => {
         const boardData = await boardApi.getBoardById(id);
         setTitle(boardData.title);
         setDescription(boardData.description);
-
+        setCreatedBy(boardData?.createdBy || "Passive User");
+        
+        console.log("board data debug:",boardData);
+        setWikiTitle(boardData.label); // to show user Entity of Board
         // Fetch nodes
         const nodesData = await nodeApi.getNodesByBoard(id);
         const flowNodes = nodesData.map((node: NodeDto) => ({
@@ -133,6 +105,8 @@ const BoardDetail: React.FC = () => {
           type: 'default'
         }));
         setNodes(flowNodes);
+        console.log("nodes data debug:",nodesData);
+        console.log("flowNodes data debug:",flowNodes);
 
         // Fetch edges
         const edgesData = await edgeApi.getEdgesByBoard(id);
@@ -143,6 +117,8 @@ const BoardDetail: React.FC = () => {
           type: 'smoothstep',
           animated: true
         }));
+        console.log("edges data debug:",edgesData);
+        console.log("flowEdges data debug:",flowEdges);
         setEdges(flowEdges);
       } catch (error) {
         console.error("Error loading board data:", error);
@@ -159,11 +135,11 @@ const BoardDetail: React.FC = () => {
     console.log('id:', id);  // Debug log
     console.log('currentUser:', currentUser);  // Debug log
 
-    if (!newNodeContent.trim() || !id || !currentUser?.username) {
+    if (!newNodeContent.trim() || !id || !currentUser) {
       console.log('Validation failed:', { 
         hasContent: !!newNodeContent.trim(), 
         hasId: !!id, 
-        hasUsername: !!currentUser?.username 
+        hasUsername: !!currentUser
       });
       return;
     }
@@ -173,10 +149,11 @@ const BoardDetail: React.FC = () => {
       const nodeData: NodeDto = {
         label: newNodeContent,
         boardId: id,
-        createdBy: currentUser.username
+        createdBy: (currentUser.username || currentUser ) as string 
       };
 
       console.log('Sending node creation request with data:', nodeData);  // Debug log
+
 
       const createdNode = await nodeApi.createNode(nodeData);
       
@@ -265,6 +242,15 @@ const BoardDetail: React.FC = () => {
     }
   };
 
+  const onNodeClick = (event:React.MouseEvent,node:Node) => {
+    setSelectedNodeDetails({
+      id:node?.id,
+      data:node?.data,
+      position : node?.position
+    });
+    setIsNodeDetailsModalOpen(true);
+  }
+
   return (
     <div className="create-board-container">
       <div className="create-board-form" style={{ maxWidth: 900 }}>
@@ -274,7 +260,29 @@ const BoardDetail: React.FC = () => {
             <div className="loading-spinner"></div>
           </div>
         )}
-        <p style={{ textAlign: "center", color: "#4a5568" }}>{description}</p>
+        <p style={{ textAlign: "center", color: "#4a5568" }}>Created By: {createdBy}</p>
+        <p style={{ textAlign: "center", color: "#4a5568" }}>
+          Related WikiData Entity:{" "}
+          <a
+            href={`https://www.wikidata.org/wiki/${wikiTitle}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "#4f46e5",
+              textDecoration: "none",
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.textDecoration = "underline";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.textDecoration = "none";
+            }}
+          >
+            {title}
+          </a>
+        </p>
         <div
           style={{
             height: 400,
@@ -289,6 +297,7 @@ const BoardDetail: React.FC = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            // onNodeClick={onNodeClick}
             fitView
           >
             <Background />
@@ -368,6 +377,29 @@ const BoardDetail: React.FC = () => {
             Home Page
           </button>
         </div>
+
+        {/* Node Details Modal}*/}
+
+        <Modal
+  isOpen={isNodeDetailsModalOpen}
+  onClose={() => setIsNodeDetailsModalOpen(false)}
+  title="Node Details"
+>
+  {selectedNodeDetails && (
+    <div className="node-details">
+      <div className="node-detail-item">
+        <strong>ID:</strong> {selectedNodeDetails.id}
+      </div>
+      <div className="node-detail-item">
+        <strong>Label:</strong> {selectedNodeDetails.data.label}
+      </div>
+      <div className="node-detail-item">
+        <strong>Position:</strong> X: {Math.round(selectedNodeDetails.position.x)}, Y: {Math.round(selectedNodeDetails.position.y)}
+      </div>
+    </div>
+  )}
+</Modal>
+
 
         {/* Add Node Modal */}
         <Modal

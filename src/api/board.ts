@@ -63,7 +63,7 @@ export const boardApi = {
     },
 
     getBoardByLabel: async (label: string): Promise<BoardResponse> => {
-        const response = await fetch(`/api/board/${label}`, {
+        const response = await fetch(`/api/board/label/${label}`, {
             method: "GET",
             headers: getAuthHeaders(),
             credentials: 'include',
@@ -77,7 +77,7 @@ export const boardApi = {
     },
 
     getBoardById: async (id: string): Promise<BoardResponse> => {
-        const response = await fetch(`/api/board/${id}`, {
+        const response = await fetch(`/api/board/id/${id}`, {
             method: "GET",
             headers: getAuthHeaders(),
             credentials: 'include',
