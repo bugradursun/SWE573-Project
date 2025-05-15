@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component;
 public class EdgeMapper {
 
     public static EdgeDto toDto(Edge edge) {
-        return new EdgeDto();
+        EdgeDto dto = new  EdgeDto(
+                edge.getId(),
+                edge.getSource().getId(),
+                edge.getTarget().getId(),
+                edge.getBoard().getId(),
+                edge.getCreatedBy()
+        );
+        return dto;
     }
 }

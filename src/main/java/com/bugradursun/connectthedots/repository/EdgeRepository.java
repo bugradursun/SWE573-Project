@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EdgeRepository extends JpaRepository<Edge, UUID> {
-    List findByBoardId(UUID boardId);
+    List<Edge> findByBoardId(UUID boardId);
 
 }

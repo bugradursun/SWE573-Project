@@ -23,13 +23,13 @@ public class NodeService {
     private final NodeRepository nodeRepository;
     private final BoardRepository boardRepository;
 
-    public NodeDto createNode(CreateNodeRequest request) {
-        Board board = boardRepository.findById(request.getBoardId())
+    public NodeDto createNode(NodeDto request) {
+        Board board = boardRepository.findById(request.boardId())
                 .orElseThrow(() -> new IllegalArgumentException("Board not found"));
         Node node = new Node();
-        node.setContent(request.getContent());
+        node.setContent(request.label());
         node.setBoard(board);
-        node.setCreatedBy(request.getCreatedBy());
+        node.setCreatedBy(request.createdBy());
 
         Node saved = nodeRepository.save(node);
         return toDto(saved);

@@ -1,9 +1,10 @@
 package com.bugradursun.connectthedots.controller;
 
 import com.bugradursun.connectthedots.dto.BoardFlowDto;
-import com.bugradursun.connectthedots.dto.EdgeDto;
+import com.bugradursun.connectthedots.dto.NodeDto;
 import com.bugradursun.connectthedots.entity.Board;
 import com.bugradursun.connectthedots.entity.Contribution;
+import com.bugradursun.connectthedots.entity.Node;
 import com.bugradursun.connectthedots.service.BoardService;
 import com.bugradursun.connectthedots.service.ContributionService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+/*
 @RestController
 @RequestMapping("/api/board-flow") @RequiredArgsConstructor
 public class BoardFlowController {
@@ -27,7 +28,7 @@ public class BoardFlowController {
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardFlowDto> getBoardFlow(@PathVariable UUID boardId) {
         Board board = boardService.getBoardById(boardId);
-        List<Contribution> contributions = contributionService.getContributionsByBoard(boardId);
+        List<Node> contributions = contributionService.getContributionsByBoard(boardId);
 
         List<NodeDto> nodes = new ArrayList<>();
         List<EdgeDto> edges = new ArrayList<>();

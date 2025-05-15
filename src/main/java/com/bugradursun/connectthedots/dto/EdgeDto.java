@@ -4,11 +4,16 @@ import lombok.Data;
 
 import java.util.UUID;
 
-@Data
-public class EdgeDto {
-    private UUID id;
-    private UUID sourceId;
-    private UUID targetId;
-    private UUID boardId;
-    private String createdBy;
+//package com.bugradursun.connectthedots.dto;
+
+import lombok.Data;
+
+import java.util.UUID;
+
+public record EdgeDto (UUID id,
+                       UUID sourceId,
+                       UUID targetId,
+                       UUID boardId,
+                       String createdBy) {
+
 }
