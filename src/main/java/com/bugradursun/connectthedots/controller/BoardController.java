@@ -28,9 +28,14 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getAllBoards());
     }
 
-    @GetMapping("/{label}")
+    @GetMapping("/label/{label}")
     public ResponseEntity<BoardResponseDto> getBoardByLabel(@PathVariable String label) {
         return ResponseEntity.ok(boardService.getBoardByLabel(label));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<BoardResponseDto> getBoardById(@PathVariable UUID id ){
+        return ResponseEntity.ok(boardService.getBoardById(id));
     }
 
     @PostMapping("/update/{id}")

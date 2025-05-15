@@ -57,9 +57,10 @@ public class BoardService {
 
     }
 
-    public Board getBoardById(UUID boardId) {
-        return boardRepository.findById(boardId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND," Board not found!"));
+    public BoardResponseDto getBoardById(UUID boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("Board not found"));
+        return boardMapper.toDto(board);
     }
 
     public BoardResponseDto updateBoard(UUID id,BoardRequestDto requestDto) {
