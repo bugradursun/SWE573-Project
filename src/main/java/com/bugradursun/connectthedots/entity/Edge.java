@@ -9,42 +9,36 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name="contributions")
+@Table(name="edges")
 @Getter @Setter @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-
-public class Contribution {
+public class Edge {
 
     @Id
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false)
-    private String content;
-
-    @ManyToOne
-    @JoinColumn(name = "board_id",nullable = false)
-    private Board board;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_node_id",nullable = false)
+    private Node source;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Contribution parent;
+    @JoinColumn(name="target_node_id",nullable = false)
+    private Node target;
 
-     @OneToMany(mappedBy = "parent",cascade = CascadeType.ALL)
-     private List<Contribution> children = new ArrayList<>();
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name ="board_id",nullable = false)
+    private Board board;
 
     @Column(nullable = false)
-    String createdBy;
+    private String createdBy;
 
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
     private Instant updatedAt;
-
 }

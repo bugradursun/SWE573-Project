@@ -5,10 +5,8 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class EdgeDto {
-    private UUID id;
-    private UUID sourceId;
-    private UUID targetId;
+public class CreateNodeRequest {
+    private String content;
     private UUID boardId;
     private String createdBy;
 }

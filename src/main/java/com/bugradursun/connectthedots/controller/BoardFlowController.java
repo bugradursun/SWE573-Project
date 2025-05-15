@@ -2,7 +2,6 @@ package com.bugradursun.connectthedots.controller;
 
 import com.bugradursun.connectthedots.dto.BoardFlowDto;
 import com.bugradursun.connectthedots.dto.EdgeDto;
-import com.bugradursun.connectthedots.dto.NodeDto;
 import com.bugradursun.connectthedots.entity.Board;
 import com.bugradursun.connectthedots.entity.Contribution;
 import com.bugradursun.connectthedots.service.BoardService;

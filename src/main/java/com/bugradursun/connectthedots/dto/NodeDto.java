@@ -1,14 +1,14 @@
 package com.bugradursun.connectthedots.dto;
 
+
 import lombok.Data;
 
-import java.util.Map;
-import java.util.Objects;
+import java.util.UUID;
 
-@Data
-public class NodeDto{
-    private String id;
-    private String type;
-    private Map<String, Object> data;
-    private Map<String,Integer> position;
+public record NodeDto(
+        UUID id,
+        String label,
+        UUID boardId,
+        String createdBy
+        ) {
 }
