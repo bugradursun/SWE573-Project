@@ -10,6 +10,7 @@ import React, {
 interface User {
   username?: string;
   email?: string;
+  
 }
 
 interface AuthContextType {

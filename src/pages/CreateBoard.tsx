@@ -30,17 +30,15 @@ const CreateBoard: React.FC = () => {
   const [userBoards, setUserBoards] = useState<BoardResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { currentUser, userEmail } = useAuth();
-  const [wikidataResults, setWikidataResults] = useState<WikidataResult[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const { currentUser } = useAuth();
+  console.log("current userxxx",currentUser)
 
   useEffect(() => {
     const fetchAllBoards = async () => {
       try {
         const response = await boardApi.getAllBoards();
         setBoards(response);
-        const boardsToShow = response.filter(board => board.createdBy === currentUser);
+        const boardsToShow = response.filter(board => board.createdBy === currentUser?.username);
         setUserBoards(boardsToShow);
       } catch (error) {
         console.error("Error fetching boards:", error);
@@ -49,41 +47,17 @@ const CreateBoard: React.FC = () => {
     fetchAllBoards();
   }, [currentUser]);
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setTitle(newTitle);
-
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    if (newTitle.length > 2) {
-      const timeout = setTimeout(async () => {
-        try {
-          const results = await boardApi.searchWikidata(newTitle);
-          setWikidataResults(results);
-          setShowResults(true);
-        } catch (error) {
-          console.error("Failed to search Wikidata:", error);
-        }
-      }, 500);
-      setSearchTimeout(timeout);
-    } else {
-      setWikidataResults([]);
-      setShowResults(false);
-    }
-  };
-
-  const handleWikidataSelect = (result: WikidataResult) => {
-    setTitle(result.label);
-    setDescription(result.description);
-    setShowResults(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    if (!currentUser) {
+      console.log("no current user",currentUser)
+      setError("You must be logged in to create a board");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const boardData = {
@@ -156,6 +130,7 @@ const CreateBoard: React.FC = () => {
                   onChange={(e) => setLabel(e.target.value)}
                   required
                   disabled={isLoading}
+                  placeholder="Enter a unique label for your board"
                 />
               </div>
               <div className="form-group">
@@ -164,24 +139,11 @@ const CreateBoard: React.FC = () => {
                   id="title"
                   type="text"
                   value={title}
-                  onChange={handleTitleChange}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
                   disabled={isLoading}
+                  placeholder="Enter a title for your board"
                 />
-                {showResults && wikidataResults.length > 0 && (
-                  <div className="wikidata-results">
-                    {wikidataResults.map((result) => (
-                      <div
-                        key={result.id}
-                        className="wikidata-result-item"
-                        onClick={() => handleWikidataSelect(result)}
-                      >
-                        <h3>{result.label}</h3>
-                        <p>{result.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
               <div className="form-group">
                 <label htmlFor="content">Content</label>
@@ -192,6 +154,7 @@ const CreateBoard: React.FC = () => {
                   rows={5}
                   required
                   disabled={isLoading}
+                  placeholder="Enter the main content of your board"
                 />
               </div>
               <div className="form-group">
@@ -203,6 +166,7 @@ const CreateBoard: React.FC = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   disabled={isLoading}
+                  placeholder="Enter a description for your board"
                 />
               </div>
               <button 
@@ -236,7 +200,7 @@ const CreateBoard: React.FC = () => {
                     <div className="your-board-footer">
                       <span className="board-label">{board.label}</span>
                       <span className="board-date">
-                        {new Date(board.createdAt).toLocaleDateString()}
+                        {new Date(board.createdAt!).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
