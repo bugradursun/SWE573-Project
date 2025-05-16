@@ -5,7 +5,8 @@ export interface EdgeDto {
     sourceId: string;
     targetId: string;
     boardId: string;
-    createdBy: string;
+    title:string;
+    createdBy: any;
     createdAt?: string;
     updatedAt?: string;
 }

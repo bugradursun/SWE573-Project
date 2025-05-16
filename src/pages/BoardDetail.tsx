@@ -40,6 +40,44 @@ interface NodeDetails {
   position:{x:number,y:number};
 }
 
+interface WikidataSearchResult {
+  id: string;
+  label: string;
+  description: string;
+  url: string;
+}
+
+const searchWikidata = async (query: string): Promise<WikidataSearchResult | null> => {
+  try {
+    // Wikidata SPARQL endpoint
+    const endpoint = 'https://www.wikidata.org/w/api.php';
+    const params = new URLSearchParams({
+      action: 'wbsearchentities',
+      search: query,
+      language: 'en',
+      format: 'json',
+      origin: '*'
+    });
+
+    const response = await fetch(`${endpoint}?${params}`);
+    const data = await response.json();
+
+    if (data.search && data.search.length > 0) {
+      const result = data.search[0];
+      return {
+        id: result.id,
+        label: result.label,
+        description: result.description,
+        url: `https://www.wikidata.org/wiki/${result.id}`
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error searching Wikidata:', error);
+    return null;
+  }
+};
+
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
   if (!isOpen) return null;
 
@@ -81,6 +119,13 @@ const BoardDetail: React.FC = () => {
   const [newNodeContent, setNewNodeContent] = useState("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
   const [updatedContent, setUpdatedContent] = useState("");
+
+  // Edge creation states
+  const [isEdgeCreationModalOpen, setIsEdgeCreationModalOpen] = useState(false);
+  const [edgeTitle, setEdgeTitle] = useState("");
+  const [pendingConnection, setPendingConnection] = useState<Connection | null>(null);
+
+  console.log("CURRENT USER DEBUG XXX:",currentUser)
 
   useEffect(() => {
     if (!id) return;
@@ -130,11 +175,6 @@ const BoardDetail: React.FC = () => {
   }, [id]);
 
   const handleAddNode = async () => {
-    console.log('handleAddNode called');  // Debug log
-    console.log('newNodeContent:', newNodeContent);  // Debug log
-    console.log('id:', id);  // Debug log
-    console.log('currentUser:', currentUser);  // Debug log
-
     if (!newNodeContent.trim() || !id || !currentUser) {
       console.log('Validation failed:', { 
         hasContent: !!newNodeContent.trim(), 
@@ -146,22 +186,32 @@ const BoardDetail: React.FC = () => {
 
     setLoading(true);
     try {
+      // Search Wikidata first
+      const wikidataResult = await searchWikidata(newNodeContent);
+      
       const nodeData: NodeDto = {
         label: newNodeContent,
         boardId: id,
-        createdBy: (currentUser.username || currentUser ) as string 
+        createdBy: (currentUser || currentUser) as string,
+        wikidataId: wikidataResult?.id,
+        wikidataUrl: wikidataResult?.url,
+        description: wikidataResult?.description
       };
 
-      console.log('Sending node creation request with data:', nodeData);  // Debug log
-
+      console.log('Sending node creation request with data:', nodeData);
 
       const createdNode = await nodeApi.createNode(nodeData);
       
-      console.log('Node created successfully:', createdNode);  // Debug log
+      console.log('Node created successfully:', createdNode);
       
       const newNode = {
         id: createdNode.id!,
-        data: { label: createdNode.label },
+        data: { 
+          label: createdNode.label,
+          wikidataId: createdNode.wikidataId,
+          wikidataUrl: createdNode.wikidataUrl,
+          description: createdNode.description
+        },
         position: { x: Math.random() * 500, y: Math.random() * 500 },
         type: 'default'
       };
@@ -215,31 +265,49 @@ const BoardDetail: React.FC = () => {
     }
   };
 
-  const onConnect = async (connection: Connection) => {
-    if (!id || !currentUser?.username) return;
+  const handleEdgeCreation = async () => {
+    if (!pendingConnection || !id || !currentUser || !edgeTitle.trim()) return;
 
     try {
       const edgeData: EdgeDto = {
-        sourceId: connection.source!,
-        targetId: connection.target!,
+        sourceId: pendingConnection.source!,
+        targetId: pendingConnection.target!,
         boardId: id,
-        createdBy: currentUser.username
+        createdBy: currentUser,
+        title: edgeTitle.trim()
       };
 
       const createdEdge = await edgeApi.createEdge(edgeData);
       
       const newEdge: Edge = {
         id: createdEdge.id!,
-        source: connection.source!,
-        target: connection.target!,
+        source: pendingConnection.source!,
+        target: pendingConnection.target!,
         type: 'smoothstep',
-        animated: true
+        animated: true,
+        label: edgeTitle.trim()
       };
 
       setEdges((eds) => [...eds, newEdge]);
+      setEdgeTitle("");
+      setIsEdgeCreationModalOpen(false);
+      setPendingConnection(null);
     } catch (error) {
       console.error("Failed to create edge:", error);
     }
+  };
+
+  const onConnect = async (connection: Connection) => {
+    if (!id || !currentUser) {
+      console.log("Missing reqs in onConnect");
+      return;
+    }
+
+    console.log("On connect triggered");
+    console.log("Connection:", connection);
+
+    setPendingConnection(connection);
+    setIsEdgeCreationModalOpen(true);
   };
 
   const onNodeClick = (event:React.MouseEvent,node:Node) => {
@@ -297,7 +365,7 @@ const BoardDetail: React.FC = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            // onNodeClick={onNodeClick}
+            onNodeClick={onNodeClick}
             fitView
           >
             <Background />
@@ -544,6 +612,47 @@ const BoardDetail: React.FC = () => {
               }}
             >
               Update
+            </button>
+          </div>
+        </Modal>
+
+        {/* Edge Creation Modal */}
+        <Modal
+          isOpen={isEdgeCreationModalOpen}
+          onClose={() => {
+            setIsEdgeCreationModalOpen(false);
+            setPendingConnection(null);
+            setEdgeTitle("");
+          }}
+          title="Create Edge"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <input
+              type="text"
+              value={edgeTitle}
+              onChange={(e) => setEdgeTitle(e.target.value)}
+              placeholder="Enter edge title"
+              style={{
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid #e2e8f0",
+                fontSize: 14,
+              }}
+            />
+            <button
+              onClick={handleEdgeCreation}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#4299e1",
+                color: "white",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 500,
+              }}
+            >
+              Create Edge
             </button>
           </div>
         </Modal>

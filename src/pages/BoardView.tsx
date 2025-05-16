@@ -92,7 +92,8 @@ const BoardViewContent: React.FC = () => {
                 sourceId: connection.source!,
                 targetId: connection.target!,
                 boardId: id,
-                createdBy: currentUser.username
+                createdBy: currentUser.username,
+                title: ''
             };
 
             console.log('Creating edge with data:', edgeData);

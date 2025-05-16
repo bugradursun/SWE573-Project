@@ -45,6 +45,7 @@ export const authApi = {
         });
         
         if (!response.ok) {
+            console.log("Login failed", response);
             throw new Error("Login failed");
         }
         

@@ -4,9 +4,16 @@ export interface NodeDto {
     id?: string;
     label: string;
     boardId: string;
+    wikidataId?: string;
+    wikidataUrl?: string;
+    description?: string;
     createdBy: string;
     createdAt?: string;
     updatedAt?: string;
+}
+
+interface NodeData {
+    label: string;
 }
 
 export const nodeApi = {
