@@ -35,6 +35,7 @@ public class EdgeService {
         edge.setBoard(board);
         edge.setSource(source);
         edge.setTarget(target);
+        edge.setTitle(dto.title());
         edge.setCreatedBy(dto.createdBy());
 
         edge = edgeRepository.save(edge);

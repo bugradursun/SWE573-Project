@@ -10,9 +10,10 @@ public class EdgeMapper {
     public static EdgeDto toDto(Edge edge) {
         EdgeDto dto = new  EdgeDto(
                 edge.getId(),
-                edge.getSource().getId(),
+                edge.getSource().getId(),it 
                 edge.getTarget().getId(),
                 edge.getBoard().getId(),
+                edge.getTitle(),
                 edge.getCreatedBy()
         );
         return dto;

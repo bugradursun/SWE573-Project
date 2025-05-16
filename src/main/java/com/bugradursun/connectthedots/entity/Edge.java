@@ -29,6 +29,9 @@ public class Edge {
     @JoinColumn(name="target_node_id",nullable = false)
     private Node target;
 
+    @Column
+    private String title;
+
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name ="board_id",nullable = false)
     private Board board;

@@ -14,6 +14,7 @@ public record EdgeDto (UUID id,
                        UUID sourceId,
                        UUID targetId,
                        UUID boardId,
+                       String title,
                        String createdBy) {
 
 }
