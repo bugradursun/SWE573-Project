@@ -8,6 +8,7 @@ export interface EdgeDto {
     title:string;
     createdBy: any;
     createdAt?: string;
+    label?:string;
     updatedAt?: string;
 }
 

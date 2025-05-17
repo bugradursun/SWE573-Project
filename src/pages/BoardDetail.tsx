@@ -38,6 +38,7 @@ interface NodeDetails {
   id:string;
   data:{label:string};
   position:{x:number,y:number};
+  createdBy?:string;
 }
 
 interface WikidataSearchResult {
@@ -143,9 +144,11 @@ const BoardDetail: React.FC = () => {
         setWikiTitle(boardData.label); // to show user Entity of Board
         // Fetch nodes
         const nodesData = await nodeApi.getNodesByBoard(id);
+        console.log("nodes data xx :",nodesData);
         const flowNodes = nodesData.map((node: NodeDto) => ({
           id: node.id!,
           data: { label: node.label },
+          createdBy: node.createdBy,
           position: { x: Math.random() * 500, y: Math.random() * 500 },
           type: 'default'
         }));
@@ -160,7 +163,8 @@ const BoardDetail: React.FC = () => {
           source: edge.sourceId,
           target: edge.targetId,
           type: 'smoothstep',
-          animated: true
+          animated: true,
+          label: edge.title
         }));
         console.log("edges data debug:",edgesData);
         console.log("flowEdges data debug:",flowEdges);
@@ -192,7 +196,7 @@ const BoardDetail: React.FC = () => {
       const nodeData: NodeDto = {
         label: newNodeContent,
         boardId: id,
-        createdBy: (currentUser || currentUser) as string,
+        createdBy: currentUser,
         wikidataId: wikidataResult?.id,
         wikidataUrl: wikidataResult?.url,
         description: wikidataResult?.description
@@ -311,10 +315,12 @@ const BoardDetail: React.FC = () => {
   };
 
   const onNodeClick = (event:React.MouseEvent,node:Node) => {
+    console.log("Node clicked:",node);
     setSelectedNodeDetails({
       id:node?.id,
       data:node?.data,
-      position : node?.position
+      position : node?.position,
+      createdBy: node?.createdBy
     });
     setIsNodeDetailsModalOpen(true);
   }
@@ -463,6 +469,9 @@ const BoardDetail: React.FC = () => {
       </div>
       <div className="node-detail-item">
         <strong>Position:</strong> X: {Math.round(selectedNodeDetails.position.x)}, Y: {Math.round(selectedNodeDetails.position.y)}
+      </div>
+      <div className="node-detail-item">
+        <strong>Created By:</strong> {selectedNodeDetails.createdBy}
       </div>
     </div>
   )}

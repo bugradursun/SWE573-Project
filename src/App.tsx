@@ -31,12 +31,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <>
       {!isAuthPage && (
         <Header
-          username={
-            typeof currentUser === "string"
-              ? currentUser
-              : currentUser?.username || "User"
-          }
-        />
+        username={currentUser || "User"}
+      />
       )}
       <main>{children}</main>
     </>

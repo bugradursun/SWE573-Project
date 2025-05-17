@@ -6,7 +6,7 @@ import "./Header.css";
 import { boardApi, BoardResponse } from "../../api/board";
 
 interface HeaderProps {
-  username: string;
+  username: any;
 }
 
 const Header: React.FC<HeaderProps> = ({ username }) => {

@@ -76,6 +76,10 @@ const LoginPage: React.FC = () => {
         const data = await authApi.login(formData as LoginRequest);
         console.log("login data xxx",data);
         if (data.message === "ok" && data.token && data.username) {
+          const userData = {
+            username: data.username,
+            email: data.email
+          }
           login(data.token, data.username);
           setIsLoading(false);
           setApiError(null);

@@ -78,6 +78,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = (token: string, user: any) => {
     console.log("Login called with user:", user);
+    const userData = typeof user === 'string' ? { username: user } : user;
+
     
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));

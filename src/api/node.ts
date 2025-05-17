@@ -7,7 +7,7 @@ export interface NodeDto {
     wikidataId?: string;
     wikidataUrl?: string;
     description?: string;
-    createdBy: string;
+    createdBy?: any;
     createdAt?: string;
     updatedAt?: string;
 }
