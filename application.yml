@@ -1,0 +1,13 @@
+jwt:
+  private-key: classpath:jwt/app.key
+  public-key: classpath:jwt/app.pub
+  ttl: 15m
+  issuer: connect-the-dots
+
+server:
+  port: 8090
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
