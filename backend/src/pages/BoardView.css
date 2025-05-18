@@ -1,0 +1,155 @@
+.board-view {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.board-header {
+    margin-bottom: 20px;
+}
+
+.board-header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+}
+
+.board-header p {
+    margin: 10px 0 0;
+    color: #666;
+}
+
+.board-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.node-creation {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.node-creation input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.node-creation button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.node-creation button:hover {
+    background-color: #0056b3;
+}
+
+.flow-container {
+    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 500px;
+    position: relative;
+}
+
+/* Custom Node Styles */
+.custom-node {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+}
+
+.node-content {
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Handle Styles */
+.react-flow__handle {
+    width: 8px;
+    height: 8px;
+    background-color: #007bff;
+    border: 2px solid white;
+}
+
+.react-flow__handle-top {
+    top: -4px;
+}
+
+.react-flow__handle-bottom {
+    bottom: -4px;
+}
+
+/* Edge Styles */
+.react-flow__edge-path {
+    stroke: #007bff;
+    stroke-width: 2;
+}
+
+/* Instructions Panel */
+.instructions-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 5;
+}
+
+.instructions {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+}
+
+.instructions h3 {
+    margin: 0 0 10px;
+    color: #333;
+    font-size: 16px;
+}
+
+.instructions p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 18px;
+    color: #666;
+}
+
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 18px;
+    color: #dc3545;
+} 
